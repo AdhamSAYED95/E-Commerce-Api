@@ -83,9 +83,14 @@ exports.createProductValidator = [
         .then((subcategories) => {
           const subCategoriesIdsInDB = [];
           subcategories.forEach((subcategory) => {
-            subCategoriesIdsInDB.push(subcategory._id);
+            subCategoriesIdsInDB.push(subcategory._id.toString());
           });
-          console.log(subCategoriesIdsInDB);
+          const checker = (target, arr) => target.every((v) => arr.includes(v));
+          if (!checker(val, subCategoriesIdsInDB)) {
+            return Promise.reject(
+              new Error("subcategory don't belong to this category")
+            );
+          }
         })
     ),
   check("Brand").optional().isMongoId().withMessage("Invalid brand id format"),

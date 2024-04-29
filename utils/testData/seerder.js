@@ -1,10 +1,10 @@
 const fs = require("fs");
-// require('colors');
+require("colors");
 const dotenv = require("dotenv");
 const Product = require("../../models/Product");
 const dbConnection = require("../../config/database");
 
-dotenv.config({ path: "../../config.env" });
+dotenv.config({ path: "../../.env" });
 
 // connect to DB
 dbConnection();
