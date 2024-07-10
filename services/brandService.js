@@ -1,62 +1,32 @@
+const sharp = require("sharp");
+const { v4: uuidv4 } = require("uuid");
 const asyncHandler = require("express-async-handler");
-const slugify = require("slugify");
-const ApiError = require("../utils/apiError");
+
 const Brand = require("../models/Brand");
+const factory = require("./handlersReuse");
+const { uploadSingleImage } = require("../middlewares/uploadImageMiddleware");
 
-//// GET All of categories
-//// GET /api/v1/categories
+exports.uploadBrandImage = uploadSingleImage("image");
 
-exports.getBrands = asyncHandler(async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
-  const brands = await Brand.find({}).skip(skip).limit(limit);
-  res.status(200).json({ results: brands.length, page, data: brands });
+exports.resizeImage = asyncHandler(async (req, res, next) => {
+  const filename = `brand-${uuidv4()}-${Date.now()}.jpeg`;
+  await sharp(req.file.buffer)
+    .resize(600, 600)
+    .toFormat("jpeg")
+    .jpeg({ quality: 90 })
+    .toFile(`uploads/brands/${filename}`);
+
+  req.body.image = filename;
+
+  next();
 });
 
-////  Get specific category bt id
-////  GET /api/v1/categories
-exports.getOneBrand = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const brand = await Brand.findById(id);
-  if (!brand) {
-    return next(new ApiError(`No brand was Found for this id ${id}`, 404));
-  }
-  res.status(200).json({ data: brand });
-});
+exports.getBrands = factory.getAllResources(Brand);
 
-//// Create category
-////  POST /api/v1/categories
-exports.createBrands = asyncHandler(async (req, res) => {
-  const { name } = req.body;
-  const brand = await Brand.create({ name, slug: slugify(name) });
-  res.status(201).json({ result: brand });
-});
+exports.getOneBrand = factory.getOneResource(Brand);
 
-//// Update specific category
-////  Put /api/v1/categories
-exports.updateBrand = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const { name } = req.body;
+exports.createBrands = factory.createResource(Brand);
 
-  const brand = await Brand.findOneAndUpdate(
-    { _id: id },
-    { name, slug: slugify(name) },
-    { new: true }
-  );
-  if (!brand) {
-    return next(new ApiError(`No brand was Found for this id ${id}`, 404));
-  }
-  res.status(200).json({ data: brand });
-});
+exports.updateBrand = factory.updateResource(Brand);
 
-////
-////
-exports.deleteBrand = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const brand = await Brand.findByIdAndDelete(id);
-  if (!brand) {
-    return next(new ApiError(`No brand was Found for this id ${id}`, 404));
-  }
-  res.status(204).send();
-});
+exports.deleteBrand = factory.deleteResource(Brand);

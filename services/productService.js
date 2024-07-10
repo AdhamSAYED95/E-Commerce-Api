@@ -1,70 +1,64 @@
 const asyncHandler = require("express-async-handler");
-const slugify = require("slugify");
-const ApiError = require("../utils/apiError");
+const sharp = require("sharp");
+const { v4: uuidv4 } = require("uuid");
+
 const Product = require("../models/Product");
+const factory = require("./handlersReuse");
+const { uploadMixOfImages } = require("../middlewares/uploadImageMiddleware");
 
-//// GET All of products
-//// GET /api/v1/categories
+exports.uploadProductImages = uploadMixOfImages([
+  { name: "imageCover", maxCount: 1 },
+  { name: "images", maxCount: 4 },
+]);
 
-exports.getProducts = asyncHandler(async (req, res) => {
-  // const page = req.query.page * 1 || 1;
-  // const limit = req.query.limit * 1 || 5;
-  // const skip = (page - 1) * limit;
-  const products = await Product.find({}).populate({
-    path: "category",
-    select: "name -_id",
-  });
-  // .skip(skip)
-  // .limit(limit);
-  res.status(200).json({ results: products.length, data: products });
+exports.resizeProductImages = asyncHandler(async (req, res, next) => {
+  if (req.files.imageCover) {
+    const imageCoverFileName = `product-${uuidv4()}-${Date.now()}-cover.jpeg`;
+
+    await sharp(req.files.imageCover[0].buffer)
+      .resize(2000, 1333)
+      .toFormat("jpeg")
+      .jpeg({ quality: 95 })
+      .toFile(`uploads/products/${imageCoverFileName}`);
+
+    // Save image into our db
+    req.body.imageCover = imageCoverFileName;
+  }
+  //2- Image processing for images
+  if (req.files.images) {
+    req.body.images = [];
+    await Promise.all(
+      req.files.images.map(async (img, index) => {
+        const imageName = `product-${uuidv4()}-${Date.now()}-${index + 1}.jpeg`;
+
+        await sharp(img.buffer)
+          .resize(2000, 1333)
+          .toFormat("jpeg")
+          .jpeg({ quality: 95 })
+          .toFile(`uploads/products/${imageName}`);
+
+        // Save image into our db
+        req.body.images.push(imageName);
+      })
+    );
+  }
+  next();
 });
+
+exports.getProducts = factory.getAllResources(Product, "Products");
 
 ////  Get specific product bt id
 ////  GET /api/v1/categories
-exports.getOneProduct = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const product = await Product.findById(id).populate({
-    path: "category",
-    select: "name -_id",
-  });
-  if (!product) {
-    return next(new ApiError(`No product was Found for this id ${id}`, 404));
-  }
-  res.status(200).json({ data: product });
-});
+exports.getOneProduct = factory.getOneResource(Product, "reviews");
 
 //// Create category
 ////  POST /api/v1/categories
-exports.createProduct = asyncHandler(async (req, res) => {
-  req.body.slug = slugify(req.body.title);
-  const product = await Product.create(req.body);
-  res.status(201).json({ result: product });
-});
+exports.createProduct = factory.createResource(Product);
 
 //// Update specific category
 ////  Put /api/v1/categories
-exports.updateProduct = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  if (req.body.title) {
-    req.body.slug = slugify(req.body.title);
-  }
-
-  const product = await Product.findOneAndUpdate({ _id: id }, req.body, {
-    new: true,
-  });
-  if (!product) {
-    return next(new ApiError(`No product was Found for this id ${id}`, 404));
-  }
-  res.status(200).json({ data: product });
-});
+exports.updateProduct = factory.updateResource(Product);
 
 ////
 ////
-exports.deleteProduct = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const product = await Product.findByIdAndDelete(id);
-  if (!product) {
-    return next(new ApiError(`No product was Found for this id ${id}`, 404));
-  }
-  res.status(204).send();
-});
+exports.deleteProduct = factory.deleteResource(Product);

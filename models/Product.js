@@ -39,7 +39,7 @@ const productSchema = new mongoose.Schema(
     colors: [String],
     imageCover: {
       type: String,
-      required: [true, "Product image cover is required"],
+      required: [true, "Product Image cover is required"],
     },
     images: [String],
     category: {
@@ -67,7 +67,42 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+productSchema.virtual("reviews", {
+  ref: "Review",
+  foreignField: "product",
+  localField: "_id",
+});
+
+productSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "category",
+    select: "name-_id",
+  });
+  next();
+});
+const setImageUrl = (doc) => {
+  if (doc.imageCover) {
+    const imageUrl = `${process.env.BASE_URL}/products/${doc.imageCover}`;
+    doc.imageCover = imageUrl;
+  }
+  if (doc.images) {
+    const imagesList = [];
+    doc.images.forEach((image) => {
+      const imageUrl = `${process.env.BASE_URL}/products/${image}`;
+      imagesList.push(imageUrl);
+    });
+    doc.images = imagesList;
+  }
+};
+productSchema.post("init", function (doc) {
+  setImageUrl(doc);
+});
+
+productSchema.post("save", function (doc) {
+  setImageUrl(doc);
+});
 
 module.exports = mongoose.model("Product", productSchema);
