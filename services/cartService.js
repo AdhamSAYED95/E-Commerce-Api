@@ -3,6 +3,7 @@ const asyncHandler = require("express-async-handler");
 const ApiError = require("../utils/apiError");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
+const Coupon = require("../models/Coupon");
 
 const calcTotalCartPrice = (cart) => {
   let totalPrice = 0;
@@ -10,7 +11,8 @@ const calcTotalCartPrice = (cart) => {
     totalPrice += item.price * item.quantity;
   });
   cart.totalCartPrice = totalPrice;
-  return cart.totalCartPrice;
+  cart.totalPriceAfterDiscount = undefined;
+  return totalPrice;
 };
 
 exports.addProductsToCart = asyncHandler(async (req, res, next) => {
@@ -73,6 +75,68 @@ exports.removeSpecificCartItem = asyncHandler(async (req, res, next) => {
   cart.save();
 
   res.status(200).json({
+    numOfCartItems: cart.cartItems.length,
+    data: cart,
+  });
+});
+
+exports.clearCart = asyncHandler(async (req, res, next) => {
+  await Cart.findOneAndDelete({ user: req.user._id });
+  res.status(204).send();
+});
+
+exports.updateCartItemQuantity = asyncHandler(async (req, res, next) => {
+  const { quantity } = req.body;
+
+  const cart = await Cart.findOne({ user: req.user._id });
+  if (!cart) {
+    return next(new ApiError("Cart not found for this user ", 404));
+  }
+
+  const itemIndex = cart.cartItems.findIndex(
+    (item) => item._id.toString() === req.params.cartItemId
+  );
+
+  if (itemIndex > -1) {
+    const cartItem = cart.cartItems[itemIndex];
+    cartItem.quantity = quantity;
+    cart.cartItems[itemIndex] = cartItem;
+  } else {
+    return next(new ApiError("Item not found in the cart", 404));
+  }
+
+  calcTotalCartPrice(cart);
+
+  await cart.save();
+  res.status(200).json({
+    status: "success",
+    numOfCartItems: cart.cartItems.length,
+    data: cart,
+  });
+});
+
+exports.applyCouponToCart = asyncHandler(async (req, res, next) => {
+  const { couponCode } = req.body;
+  const coupon = await Coupon.findOne({
+    name: couponCode,
+    expires: { $gt: Date.now() },
+  });
+
+  if (!coupon) {
+    return next(new ApiError("Coupon not found or expired", 404));
+  }
+
+  const cart = await Cart.findOne({ user: req.user._id });
+  const totalPrice = cart.totalCartPrice;
+
+  const totalPriceAfterDiscount =
+    totalPrice - (totalPrice * coupon.discount) / 100;
+
+  cart.totalPriceAfterDiscount = totalPriceAfterDiscount;
+
+  await cart.save();
+  res.status(200).json({
+    status: "success",
     numOfCartItems: cart.cartItems.length,
     data: cart,
   });
