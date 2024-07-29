@@ -147,16 +147,16 @@ exports.checkOutSession = asyncHandler(async (req, res, next) => {
 const createCardOrder = async (session) => {
   const cartId = session.client_reference_id;
   const shippingAddress = session.metadata;
-  const orderPrice = session.amount_total / 100;
+  const oderPrice = session.amount_total / 100;
 
   const cart = await Cart.findById(cartId);
   const user = await User.findOne({ email: session.customer_email });
 
   const order = await Order.create({
-    user: user._id,
+    user: user.data._id,
     cartItems: cart.cartItems,
     shippingAddress,
-    totalOrderPrice: orderPrice,
+    totalOrderPrice: oderPrice,
     isPaid: true,
     paidAt: Date.now(),
     paymentMethodType: "card",
@@ -169,7 +169,6 @@ const createCardOrder = async (session) => {
         update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
       },
     }));
-
     await Product.bulkWrite(bulkOption, {});
 
     await Cart.findByIdAndDelete(cartId);
