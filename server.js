@@ -21,6 +21,7 @@ app.use(cors());
 app.use(compression());
 app.options("*", cors());
 
+/// to prevent express.json() form manipulation req.boy in the event of stripe
 app.post(
   "/webhook-checkout",
   express.raw({ type: "application/json" }),
