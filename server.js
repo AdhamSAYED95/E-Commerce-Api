@@ -21,6 +21,16 @@ app.use(cors());
 app.use(compression());
 app.options("*", cors());
 
+app.use("/", (req, res, next) => {
+  if (req.path === "/") {
+    res.send(
+      '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Hello</title></head><body><h1>Hello, welcome to my API project!</h1></body></html>'
+    );
+  } else {
+    next();
+  }
+});
+
 /// to prevent express.json() form manipulation req.boy in the event of stripe
 app.post(
   "/webhook-checkout",
