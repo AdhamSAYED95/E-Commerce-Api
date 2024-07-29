@@ -143,6 +143,11 @@ exports.checkOutSession = asyncHandler(async (req, res, next) => {
   });
 });
 
+const createCardOrder = (session) => {
+  const cartId = session.client_reference_id;
+  const shippingAddress = session.metadata;
+};
+
 exports.webhookCheckout = asyncHandler(async (req, res, next) => {
   const sig = req.headers["stripe-signature"];
 
@@ -161,5 +166,7 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
 
   if (event.type === "checkout.session.completed") {
     console.log("Create Order Here !");
+    console.log(event.data.object);
+    // createCardOrder(event.data.object);
   }
 });
