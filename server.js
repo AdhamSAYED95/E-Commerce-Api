@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const cors = require("cors");
 const compression = require("compression");
+const bodyParser = require("body-parser");
 
 const ApiError = require("./utils/apiError");
 const globalError = require("./middlewares/errorMiddleware");
@@ -25,7 +26,7 @@ app.use(express.static(path.join(__dirname, "uploads")));
 
 app.post(
   "/webhook-checkout",
-  express.raw({ type: "application/json" }),
+  bodyParser.raw({ type: "application/json" }),
   webhookCheckout
 );
 
