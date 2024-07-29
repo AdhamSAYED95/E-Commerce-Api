@@ -7,7 +7,7 @@
     }
   ],
   "functions": {
-    "services/orderService/webhook-checkout.js": {
+    "server.js": {
       "maxDuration": 60
     }
   },
