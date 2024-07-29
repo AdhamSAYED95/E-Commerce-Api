@@ -23,6 +23,14 @@ app.options("*", cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
 
+app.use((req, res, next) => {
+  if (req.originalUrl === "/webhook-checkout") {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
+
 app.post(
   "/webhook-checkout",
   express.raw({ type: "application/json" }),
