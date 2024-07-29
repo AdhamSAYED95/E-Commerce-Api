@@ -7,7 +7,7 @@
     }
   ],
   "functions": {
-    "api/webhook-checkout.js": {
+    "services/orderService/webhook-checkout.js": {
       "maxDuration": 60
     }
   },
