@@ -116,8 +116,6 @@ exports.checkOutSession = asyncHandler(async (req, res, next) => {
 
   const totalOrderPrice = cartPrice + taxPrice + shippingPrice;
 
-  console.log("Stripe Secret Key:", process.env.STRIPE_SECRET_MY);
-
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
@@ -157,6 +155,7 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
       "whsec_tPprqEYevUBM0T1XUFOl3G4SV1BG7en5"
     );
   } catch (err) {
+    console.log("thre is an error");
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
