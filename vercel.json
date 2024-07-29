@@ -7,7 +7,7 @@
     }
   ],
   "functions": {
-    "services/orderService.js": {
+    "server.js": {
       "maxDuration": 60
     }
   },
