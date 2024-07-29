@@ -150,7 +150,9 @@ const createCardOrder = async (session) => {
   const oderPrice = session.amount_total / 100;
 
   const cart = await Cart.findById(cartId);
+  console.log(cart);
   const user = await User.findOne({ email: session.customer_email });
+  console.log(user);
 
   const order = await Order.create({
     user: user.data._id,
@@ -161,6 +163,8 @@ const createCardOrder = async (session) => {
     paidAt: Date.now(),
     paymentMethodType: "card",
   });
+
+  console.log(order);
 
   if (order) {
     const bulkOption = cart.cartItems.map((item) => ({
