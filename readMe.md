@@ -85,7 +85,7 @@ This E-Commerce project is a backend API built to support an online store. It in
 
 ```perl
 ecommerce-project/
-├── config/ # Configuration files
+├── config/ #  for database configuration and connection
 ├── middlewares/ # Custom middleware
 ├── models/ # Mongoose models
 ├── routes/ # Express routes
@@ -99,3 +99,59 @@ ecommerce-project/
 ├── server.js # Entry point for the backend
 └── vercel.json # Vercel configuration
 ```
+
+## 📌 API Endpoints
+
+### 🔐 Auth
+
+- **POST** `/api/v1/auth/signup` - Register a new user
+- **POST** `/api/v1/auth/login` - Login a user
+
+### 🛍️ Products
+
+- **GET** `/api/v1/products` - Get all products
+- **GET** `/api/v1/products/:id` - Get a single product
+- **POST** `/api/v1/products` - Create a new product
+- **PUT** `/api/v1/products/:id` - Update a product
+- **DELETE** `/api/v1/products/:id` - Delete a product
+
+### 🛒 Cart
+
+- **POST** `/api/v1/cart` - Add to cart
+- **GET** `/api/v1/cart` - Get cart items
+- **DELETE** `/api/v1/cart/:id` - Remove item from cart
+
+### 🧾 Orders
+
+- **POST** `/api/v1/order/checkout` - Checkout and create an order
+- **GET** `/api/v1/order` - Get all orders
+- **GET** `/api/v1/order/:id` - Get a single order
+
+## 🤝 Contributing
+
+1. **Fork the repository.**
+
+2. **Create a new branch:**
+
+   ```bash
+   git checkout -b feature-name
+
+   ```
+
+3. **Make your changes**
+
+4. **Commit your changes:**
+
+   ```bash
+   git commit -m 'Add some feature'
+
+   ```
+
+5. **Push to the branch:**
+
+   ```bash
+   git push origin feature-name
+
+   ```
+
+6. **Open a pull request.**
