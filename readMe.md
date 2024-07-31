@@ -27,4 +27,35 @@ This eCommerce project is a backend API built to support an online store. It inc
    ```bash
    git clone https://github.com/your-username/ecommerce-project.git
    cd ecommerce-project
+
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+
+   ```
+
+3. **Set up environment variables:**
+
+   ```env
+   PORT=YourSettings
+   NODE_ENV=YourSettings
+   BASE_URL=YourSettings
+   DB_URI=YourSettings
+   JWT_SECRET_KEY=YourSettings
+   JWT_EXPIRES_IN=YourSettings
+   EMAIL_HOST=YourSettings
+   EMAIL_PORT=YourSettings
+   EMAIL_USER=YourSettings
+   EMAIL_PASSWORD=YourSettings
+   STRIPE_SECRET_MY=YourSettings
+   STRIPE_WEBHOOK_SECRET=YourSettings
+
+   ```
+
+4. **Run the application:**
+   ```bash
+   npm run dev
    ```
