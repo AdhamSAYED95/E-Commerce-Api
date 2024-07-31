@@ -60,7 +60,7 @@ This E-Commerce project is a backend API built to support an online store. It in
 
 4. **Run the application:**
    ```bash
-   npm run dev
+   npm run start:dev
    ```
 
 ## 🚀 Usage
