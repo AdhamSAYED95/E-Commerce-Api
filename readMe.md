@@ -105,7 +105,7 @@ ecommerce-project/
 
 # Note 
 
-- {{URL}}  is your Local host that runs your application or the server url you upload the project on 
+- {{URL}} is your Local host that runs your application for example  http://localhost:8000 or the server url you upload the project on  like this http://my_ecommerce.com
 
 ## 🔐 Authentication
 
