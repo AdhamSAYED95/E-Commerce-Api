@@ -103,6 +103,10 @@ ecommerce-project/
 
 ## 📌 API Endpoints
 
+# Note 
+
+- {{URL}}  is your Local host that runs your application or the server url you upload the project on 
+
 ## 🔐 Authentication
 
 - **POST** `{{URL}}/api/v1/auth/signup` - Sign up a new user
